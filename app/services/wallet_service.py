@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from app.models.financial import Wallet, Transaction, TransactionType
-from decimal import Decimal
 from fastapi import HTTPException
 
 
@@ -32,7 +31,7 @@ class WalletService:
     def add_transaction(
         db: Session,
         wallet_id: int,
-        amount: Decimal,
+        amount: float,
         transaction_type: TransactionType,
         description: str
     ):
@@ -49,12 +48,12 @@ class WalletService:
         db.add(transaction)
 
         if transaction_type == TransactionType.CREDIT:
-            wallet.balance += amount
+            wallet.balance += float(amount)
         else:
             if wallet.balance < amount:
                 raise HTTPException(
                     status_code=400, detail="Insufficient funds")
-            wallet.balance -= amount
+            wallet.balance -= float(amount)
 
         db.commit()
         db.refresh(transaction)
